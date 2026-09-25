@@ -2,14 +2,12 @@ package com.rafael.apiagendamento.controller;
 
 import com.rafael.apiagendamento.dto.client.ClientResponse;
 import com.rafael.apiagendamento.dto.client.CreateClientRequest;
+import com.rafael.apiagendamento.dto.client.UpdateClientRequest;
 import com.rafael.apiagendamento.service.ClientService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
@@ -24,5 +22,16 @@ public class ClientController implements GenericController {
         ClientResponse clientResponse = clientService.create(createClientRequest);
         URI location  = gerarHeadLocation(clientResponse.id());
         return ResponseEntity.created(location).body(clientResponse);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ClientResponse>searchById(@PathVariable String id){
+        ClientResponse clientResponse = clientService.searchById(id);
+        return ResponseEntity.ok(clientResponse);
+    }
+    @PutMapping
+    public ResponseEntity<ClientResponse>update(@RequestBody UpdateClientRequest updateClientRequest){
+        ClientResponse clientResponse = clientService.update(updateClientRequest);
+        return ResponseEntity.ok(clientResponse);
     }
 }

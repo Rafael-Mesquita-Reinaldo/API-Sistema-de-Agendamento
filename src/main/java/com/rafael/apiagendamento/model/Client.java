@@ -24,7 +24,7 @@ public class Client {
     @Column(length = 20)
     private String telefone;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "usuario_id",unique = true,nullable = true)
     private User usuario;
 
