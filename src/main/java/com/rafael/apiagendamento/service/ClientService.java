@@ -7,7 +7,13 @@ import com.rafael.apiagendamento.mappers.ClientMapper;
 import com.rafael.apiagendamento.model.Client;
 import com.rafael.apiagendamento.repository.ClientRepository;
 import com.rafael.apiagendamento.repository.UserRepository;
+import com.rafael.apiagendamento.specification.ClientSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -48,6 +54,34 @@ public class ClientService {
         }
         Client client = clientMapper.toEntityUpdate(updateClientRequest);
         return clientMapper.toResponse(clientRepository.save(client));
+
+    }
+
+    public void delete(String id){
+        UUID uuid = UUID.fromString(id);
+        if (!clientRepository.existsById(uuid)){
+            throw new IllegalArgumentException("Cliente não encontrado");
+        }
+        clientRepository.deleteById(uuid);
+    }
+
+    public Page<ClientResponse> searchSpecs(String nome, String telefone,String email, Integer numeroPagina,Integer tamanhoPagina){
+        Specification specs = Specification.unrestricted();
+
+        if (nome != null){
+            specs = specs.and(ClientSpecification.nomeClientLike(nome));
+        }
+        if (telefone != null){
+            specs = specs.and(ClientSpecification.telefoneClientEqual(telefone));
+        }
+        if (email != null){
+            specs = specs.and(ClientSpecification.emailUserLike(email));
+        }
+        Pageable page = PageRequest.of(numeroPagina,tamanhoPagina);
+
+        Page<Client> resultado = clientRepository.findAll(specs,page);
+
+        return resultado.map(clientMapper::toResponse);
 
     }
     
