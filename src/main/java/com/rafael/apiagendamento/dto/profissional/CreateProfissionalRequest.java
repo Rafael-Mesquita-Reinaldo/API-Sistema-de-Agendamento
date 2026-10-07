@@ -1,16 +1,15 @@
-package com.rafael.apiagendamento.dto.client;
+package com.rafael.apiagendamento.dto.profissional;
 
 import com.rafael.apiagendamento.dto.users.CreateUserRequest;
-import com.rafael.apiagendamento.model.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 
-public record CreateClientRequest(
+public record CreateProfissionalRequest(
         @NotBlank(message = "Campo nome Obrigatório!")
         String nome,
-        String telefone,
-        @NotNull(message = "Email e Senha é obrigatório")
+        @NotBlank(message = "Campo especialidade Obrigatório!")
+        String especialidade,
+        @NotNull(message = "email e senha é obrigatório")
         CreateUserRequest createUserRequest
 ) {
 }

@@ -18,7 +18,7 @@ public class ClientServiceTest {
 
     @Test
     public void create(){
-        CreateUserRequest createUserRequest = new CreateUserRequest("lucas@gmail.com","12", Role.CLIENTE);
+        CreateUserRequest createUserRequest = new CreateUserRequest("lucas@gmail.com","12");
         CreateClientRequest createClientRequest = new CreateClientRequest("lucas","",createUserRequest);
         ClientResponse clientResponse = clientService.create(createClientRequest);
         System.out.println(clientResponse);

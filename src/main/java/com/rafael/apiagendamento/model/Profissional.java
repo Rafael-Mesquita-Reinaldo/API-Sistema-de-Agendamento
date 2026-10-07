@@ -24,7 +24,7 @@ public class Profissional {
     @Column(nullable = false)
     private String especialidade;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "usuario_id",unique = true,nullable = false)
     private User usuario;
 

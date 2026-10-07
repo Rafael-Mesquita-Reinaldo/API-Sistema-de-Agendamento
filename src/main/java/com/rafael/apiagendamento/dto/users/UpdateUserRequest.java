@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
 public record UpdateUserRequest(
-        @NotNull(message = "Campo id para essa opção de atualizar é obrigatório!")
+        @NotNull(message = "Campo id para atualizar é obrigatório!")
         UUID id,
         @NotBlank(message = "Campo email é obrigatório!")
         @Email(message = "Email inválido")
