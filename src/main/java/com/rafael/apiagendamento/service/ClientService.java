@@ -3,7 +3,7 @@ package com.rafael.apiagendamento.service;
 import com.rafael.apiagendamento.dto.client.ClientResponse;
 import com.rafael.apiagendamento.dto.client.CreateClientRequest;
 import com.rafael.apiagendamento.dto.client.UpdateClientRequest;
-import com.rafael.apiagendamento.exceptions.NaoEncontradoException;
+import com.rafael.apiagendamento.exceptions.DadosNaoEncontradoException;
 import com.rafael.apiagendamento.mappers.ClientMapper;
 import com.rafael.apiagendamento.model.Client;
 import com.rafael.apiagendamento.model.Role;
@@ -37,7 +37,7 @@ public class ClientService {
     }
 
     public ClientResponse searchById(UUID id){
-        Client client = clientRepository.findById(id).orElseThrow(()-> new NaoEncontradoException(id));
+        Client client = clientRepository.findById(id).orElseThrow(()-> new DadosNaoEncontradoException(id));
         return clientMapper.toResponse(client);
     }
 
@@ -47,7 +47,7 @@ public class ClientService {
             throw new IllegalArgumentException("Para atualizar, é necessário do ID!");
         }
 
-        Client client = clientRepository.findById(updateClientRequest.id()).orElseThrow(()-> new NaoEncontradoException(updateClientRequest.id()));
+        Client client = clientRepository.findById(updateClientRequest.id()).orElseThrow(()-> new DadosNaoEncontradoException(updateClientRequest.id()));
         clientMapper.entityUpdate(updateClientRequest,client);
         return clientMapper.toResponse(client);
 
@@ -55,7 +55,7 @@ public class ClientService {
     @Transactional
     public void delete(UUID id){
         if (!clientRepository.existsById(id)){
-            throw new NaoEncontradoException(id);
+            throw new DadosNaoEncontradoException(id);
         }
         clientRepository.deleteById(id);
     }

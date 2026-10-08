@@ -1,19 +1,16 @@
 package com.rafael.apiagendamento.service;
 
 import com.rafael.apiagendamento.dto.users.AdminCreateUserRequest;
-import com.rafael.apiagendamento.dto.users.CreateUserRequest;
 import com.rafael.apiagendamento.dto.users.UpdateUserRequest;
 import com.rafael.apiagendamento.dto.users.UserResponse;
-import com.rafael.apiagendamento.exceptions.NaoEncontradoException;
+import com.rafael.apiagendamento.exceptions.DadosNaoEncontradoException;
 import com.rafael.apiagendamento.mappers.UserMapper;
-import com.rafael.apiagendamento.model.Role;
 import com.rafael.apiagendamento.model.User;
 import com.rafael.apiagendamento.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -30,7 +27,7 @@ public class UserService {
     }
 
     public UserResponse searchById(UUID id){
-         User user = userRepository.findById(id).orElseThrow(()-> new NaoEncontradoException(id));
+         User user = userRepository.findById(id).orElseThrow(()-> new DadosNaoEncontradoException(id));
         return userMapper.toResponse(user);
     }
 
@@ -39,7 +36,7 @@ public class UserService {
         if (updateUserRequest.id()== null){
             throw new IllegalArgumentException("Para atualizar, é necessário do ID!");
         }
-        User user =  userRepository.findById(updateUserRequest.id()).orElseThrow(()-> new NaoEncontradoException(updateUserRequest.id()));
+        User user =  userRepository.findById(updateUserRequest.id()).orElseThrow(()-> new DadosNaoEncontradoException(updateUserRequest.id()));
         userMapper.EntityUpdate(updateUserRequest,user);
         return userMapper.toResponse(user);
     }

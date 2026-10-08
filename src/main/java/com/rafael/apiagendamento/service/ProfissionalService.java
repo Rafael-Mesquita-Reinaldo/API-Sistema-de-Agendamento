@@ -3,7 +3,7 @@ package com.rafael.apiagendamento.service;
 import com.rafael.apiagendamento.dto.profissional.CreateProfissionalRequest;
 import com.rafael.apiagendamento.dto.profissional.ProfissionalResponse;
 import com.rafael.apiagendamento.dto.profissional.UpdateProfissionalRequest;
-import com.rafael.apiagendamento.exceptions.NaoEncontradoException;
+import com.rafael.apiagendamento.exceptions.DadosNaoEncontradoException;
 import com.rafael.apiagendamento.mappers.ProfissionalMapper;
 import com.rafael.apiagendamento.model.Profissional;
 import com.rafael.apiagendamento.model.Role;
@@ -38,7 +38,7 @@ public class ProfissionalService {
 
 
     public ProfissionalResponse searchById(UUID id){
-        Profissional profissional = profissionalRepository.findById(id).orElseThrow(() -> new NaoEncontradoException(id));
+        Profissional profissional = profissionalRepository.findById(id).orElseThrow(() -> new DadosNaoEncontradoException(id));
         return profissionalMapper.toResponse(profissional);
     }
 
@@ -47,7 +47,7 @@ public class ProfissionalService {
         if (updateProfissionalRequest.id()==null){
             throw new NullPointerException("É necessário do id para atualizar.");
         }
-        Profissional profissional = profissionalRepository.findById(updateProfissionalRequest.id()).orElseThrow(()-> new NaoEncontradoException(updateProfissionalRequest.id()));
+        Profissional profissional = profissionalRepository.findById(updateProfissionalRequest.id()).orElseThrow(()-> new DadosNaoEncontradoException(updateProfissionalRequest.id()));
         profissionalMapper.EntityUpdate(updateProfissionalRequest,profissional);
         return profissionalMapper.toResponse(profissional);
     }
