@@ -3,8 +3,10 @@ package com.rafael.apiagendamento.service;
 import com.rafael.apiagendamento.dto.client.ClientResponse;
 import com.rafael.apiagendamento.dto.client.CreateClientRequest;
 import com.rafael.apiagendamento.dto.client.UpdateClientRequest;
+import com.rafael.apiagendamento.exceptions.NaoEncontradoException;
 import com.rafael.apiagendamento.mappers.ClientMapper;
 import com.rafael.apiagendamento.model.Client;
+import com.rafael.apiagendamento.model.Role;
 import com.rafael.apiagendamento.repository.ClientRepository;
 import com.rafael.apiagendamento.repository.UserRepository;
 import com.rafael.apiagendamento.specification.ClientSpecification;
@@ -13,10 +15,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -27,54 +28,48 @@ public class ClientService {
     private final ClientMapper clientMapper;
     private final UserRepository userRepository;
 
+    @Transactional
     public ClientResponse create(CreateClientRequest createClientRequest){
-
         Client client = clientMapper.toEntityCreate(createClientRequest);
+        client.getUsuario().setRole(Role.CLIENTE);
         client.setUsuario(userRepository.save(client.getUsuario()));
-        ClientResponse clientResponse = clientMapper.toResponse(clientRepository.save(client));
-        return clientResponse;
+        return clientMapper.toResponse(clientRepository.save(client));
     }
 
-    public ClientResponse searchById(String id){
-        UUID uuid = UUID.fromString(id);
-        Optional<Client> optionalClient = clientRepository.findById(uuid);
-        if (!optionalClient.isPresent()){
-            throw new RuntimeException("Cliente não encontrado");
-        }
-        Client client = optionalClient.get();
+    public ClientResponse searchById(UUID id){
+        Client client = clientRepository.findById(id).orElseThrow(()-> new NaoEncontradoException(id));
         return clientMapper.toResponse(client);
     }
 
+    @Transactional
     public ClientResponse update(UpdateClientRequest updateClientRequest){
         if(updateClientRequest.id()==null){
             throw new IllegalArgumentException("Para atualizar, é necessário do ID!");
         }
-        if (!clientRepository.existsById(updateClientRequest.id())){
-            throw new IllegalArgumentException("Usuário não encontrado");
-        }
-        Client client = clientMapper.toEntityUpdate(updateClientRequest);
-        return clientMapper.toResponse(clientRepository.save(client));
+
+        Client client = clientRepository.findById(updateClientRequest.id()).orElseThrow(()-> new NaoEncontradoException(updateClientRequest.id()));
+        clientMapper.entityUpdate(updateClientRequest,client);
+        return clientMapper.toResponse(client);
 
     }
-
-    public void delete(String id){
-        UUID uuid = UUID.fromString(id);
-        if (!clientRepository.existsById(uuid)){
-            throw new IllegalArgumentException("Cliente não encontrado");
+    @Transactional
+    public void delete(UUID id){
+        if (!clientRepository.existsById(id)){
+            throw new NaoEncontradoException(id);
         }
-        clientRepository.deleteById(uuid);
+        clientRepository.deleteById(id);
     }
 
     public Page<ClientResponse> searchSpecs(String nome, String telefone,String email, Integer numeroPagina,Integer tamanhoPagina){
-        Specification specs = Specification.unrestricted();
+        Specification<Client> specs = Specification.unrestricted();
 
-        if (nome != null){
+        if (nome != null&& !nome.isBlank()){
             specs = specs.and(ClientSpecification.nomeClientLike(nome));
         }
-        if (telefone != null){
+        if (telefone != null&&!telefone.isBlank()){
             specs = specs.and(ClientSpecification.telefoneClientEqual(telefone));
         }
-        if (email != null){
+        if (email != null&&!email.isBlank()){
             specs = specs.and(ClientSpecification.emailUserLike(email));
         }
         Pageable page = PageRequest.of(numeroPagina,tamanhoPagina);

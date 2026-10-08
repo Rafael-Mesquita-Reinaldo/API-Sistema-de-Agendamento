@@ -3,7 +3,6 @@ package com.rafael.apiagendamento.controller;
 import com.rafael.apiagendamento.dto.client.ClientResponse;
 import com.rafael.apiagendamento.dto.client.CreateClientRequest;
 import com.rafael.apiagendamento.dto.client.UpdateClientRequest;
-import com.rafael.apiagendamento.model.Client;
 import com.rafael.apiagendamento.service.ClientService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("api/client")
@@ -28,7 +28,7 @@ public class ClientController implements GenericController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClientResponse>searchById(@PathVariable String id){
+    public ResponseEntity<ClientResponse>searchById(@PathVariable UUID id){
         ClientResponse clientResponse = clientService.searchById(id);
         return ResponseEntity.ok(clientResponse);
     }
@@ -39,7 +39,7 @@ public class ClientController implements GenericController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable String id){
+    public ResponseEntity<Void> delete(@PathVariable UUID id){
         clientService.delete(id);
         return ResponseEntity.noContent().build();
     }

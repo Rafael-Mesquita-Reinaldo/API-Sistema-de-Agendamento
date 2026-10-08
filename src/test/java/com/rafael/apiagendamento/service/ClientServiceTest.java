@@ -24,10 +24,4 @@ public class ClientServiceTest {
         System.out.println(clientResponse);
     }
 
-    @Test
-    void searchById(){
-        ClientResponse clientResponse = clientService.searchById("e1f51703-2281-4ab5-8a4d-2f60075d0e1f");
-        System.out.println(clientResponse);
-
-    }
 }
