@@ -8,10 +8,15 @@ import com.rafael.apiagendamento.mappers.ServicoMapper;
 import com.rafael.apiagendamento.model.Servico;
 import com.rafael.apiagendamento.repository.ServicoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +47,11 @@ public class ServicoService {
     public void delete(UUID id){
         Servico servico = servicoRepository.findById(id).orElseThrow(()-> new DadosNaoEncontradoException(id));
         servicoRepository.delete(servico);
+    }
+    public Page<ServicoResponse> servicoAll(Integer numeroPagina,Integer tamanhoPagina){
+        Pageable page = PageRequest.of(numeroPagina,tamanhoPagina);
+        Page<Servico> servicos = servicoRepository.findAll(page);
+        return servicos.map(servicoMapper::toResponse);
     }
 
 
