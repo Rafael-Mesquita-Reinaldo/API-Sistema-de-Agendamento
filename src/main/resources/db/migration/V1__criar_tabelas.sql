@@ -37,7 +37,8 @@ CREATE TABLE agendamento.agendamentos (
     servico_id UUID NOT NULL,
 
     data DATE NOT NULL,
-    hora TIME NOT NULL,
+    hora_inicio TIME NOT NULL,
+    hora_fim TIME NOT NULL,
     status VARCHAR(15) NOT NULL,
 
     FOREIGN KEY (cliente_id) REFERENCES agendamento.clientes(id),
