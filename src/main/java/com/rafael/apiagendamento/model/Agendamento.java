@@ -35,20 +35,24 @@ public class Agendamento {
     @Column(nullable = false)
     private LocalDate data;
 
-    @Column(nullable = false)
-    private LocalTime hora;
+    @Column(name = "hora_inicio",nullable = false)
+    private LocalTime horaInicio;
+
+    @Column(name = "hora_fim",nullable = false)
+    private LocalTime horaFim;
 
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;
 
-    public Agendamento(Client cliente, Profissional profissional, Servico servico, LocalDate data, LocalTime hora, Status status) {
+    public Agendamento(Client cliente, Profissional profissional, Servico servico, LocalDate data, LocalTime horaInicio, LocalTime horafim, Status status) {
         this.cliente = cliente;
         this.profissional = profissional;
         this.servico = servico;
         this.data = data;
-        this.hora = hora;
+        this.horaInicio = horaInicio;
+        this.horaFim = horafim;
         this.status = status;
     }
 }
