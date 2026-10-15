@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +38,7 @@ public class ServicoService {
     @Transactional
     public ServicoResponse update(UpdateServicoRequest updateServicoRequest,UUID id){
         Servico servico = servicoRepository.findById(id).orElseThrow(()-> new DadosNaoEncontradoException(id));
-        servicoMapper.EntityUpdate(updateServicoRequest,servico);
+        servicoMapper.updateEntity(updateServicoRequest,servico);
         return servicoMapper.toResponse(servico);
     }
 
@@ -47,7 +48,7 @@ public class ServicoService {
         servicoRepository.delete(servico);
     }
     public Page<ServicoResponse> servicoAll(Integer numeroPagina,Integer tamanhoPagina){
-        Pageable page = PageRequest.of(numeroPagina,tamanhoPagina);
+        Pageable page = PageRequest.of(numeroPagina,tamanhoPagina,Sort.by("descricao").ascending());
         Page<Servico> servicos = servicoRepository.findAll(page);
         return servicos.map(servicoMapper::toResponse);
     }
