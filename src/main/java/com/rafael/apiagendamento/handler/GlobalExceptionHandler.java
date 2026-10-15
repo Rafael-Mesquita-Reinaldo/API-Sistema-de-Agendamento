@@ -46,9 +46,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HorarioComercialException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ErroResposta handleHorarioComecialException(HorarioComercialException e){
-        return new ErroResposta(HttpStatus.FORBIDDEN.value(), e.getMessage(),List.of());
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ErroResposta handleHorarioComercialException(HorarioComercialException e){
+        return new ErroResposta(HttpStatus.UNPROCESSABLE_ENTITY.value(), e.getMessage(),List.of());
     }
 
     @ExceptionHandler(StatusAgendamentoException.class)

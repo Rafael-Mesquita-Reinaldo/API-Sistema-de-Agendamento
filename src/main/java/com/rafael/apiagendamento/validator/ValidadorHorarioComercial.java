@@ -15,7 +15,7 @@ public class ValidadorHorarioComercial implements Validador{
     @Override
     public void validar(Agendamento agendamento) {
         if (agendamento.getHoraInicio().isBefore(horarioComercialInicio) ||agendamento.getHoraInicio().isAfter(horarioComercialFim)|| agendamento.getHoraFim().isAfter(horarioComercialFim) ){
-            throw new HorarioComercialException("O agendamento está fora do horário comecial.");
+            throw new HorarioComercialException("O agendamento está fora do horário comercial.");
         }
     }
 }
