@@ -3,6 +3,7 @@ package com.rafael.apiagendamento.service;
 import com.rafael.apiagendamento.dto.profissional.CreateProfissionalRequest;
 import com.rafael.apiagendamento.dto.profissional.ProfissionalResponse;
 import com.rafael.apiagendamento.dto.profissional.UpdateProfissionalRequest;
+import com.rafael.apiagendamento.exceptions.ConflitoException;
 import com.rafael.apiagendamento.exceptions.DadosNaoEncontradoException;
 import com.rafael.apiagendamento.mappers.ProfissionalMapper;
 import com.rafael.apiagendamento.model.Profissional;
@@ -32,6 +33,9 @@ public class ProfissionalService {
     public ProfissionalResponse create(CreateProfissionalRequest createProfissionalRequest){
         Profissional profissional = profissionalMapper.toEntityCreate(createProfissionalRequest);
         profissional.getUsuario().setRole(Role.PROFISSIONAL);
+        if (userRepository.existsByEmail(profissional.getUsuario().getEmail())){
+            throw new ConflitoException("Email existente");
+        }
         profissional.setUsuario(userRepository.save(profissional.getUsuario()));
         return profissionalMapper.toResponse(profissionalRepository.save(profissional));
     }
@@ -43,23 +47,18 @@ public class ProfissionalService {
     }
 
     @Transactional
-    public ProfissionalResponse update(UpdateProfissionalRequest updateProfissionalRequest){
-        if (updateProfissionalRequest.id()==null){
+    public ProfissionalResponse update(UpdateProfissionalRequest updateProfissionalRequest,UUID id){
+        if (id==null){
             throw new NullPointerException("É necessário do id para atualizar.");
         }
-        Profissional profissional = profissionalRepository.findById(updateProfissionalRequest.id()).orElseThrow(()-> new DadosNaoEncontradoException(updateProfissionalRequest.id()));
-        profissionalMapper.EntityUpdate(updateProfissionalRequest,profissional);
+        Profissional profissional = profissionalRepository.findById(id).orElseThrow(()-> new DadosNaoEncontradoException(id));
+        profissionalMapper.updateEntity(updateProfissionalRequest,profissional);
         return profissionalMapper.toResponse(profissional);
     }
     @Transactional
     public void delete(UUID id){
-        if (id == null){
-            throw new IllegalArgumentException("Para deletar, é necessário do ID!");
-        }
-        if (!profissionalRepository.existsById(id)){
-            throw new RuntimeException("Profissional não encontrado");
-        }
-        profissionalRepository.deleteById(id);
+        Profissional profissional = profissionalRepository.findById(id).orElseThrow(() -> new DadosNaoEncontradoException(id));
+        profissionalRepository.delete(profissional);
     }
 
     public Page<ProfissionalResponse> searchSpecs(String nome, String especialidade, String email, Integer numeroPagina, Integer tamanhoPagina){
@@ -68,10 +67,10 @@ public class ProfissionalService {
         if (nome != null&&!nome.isBlank()){
             specs = specs.and(ProfissionalSpecification.nomeProfissionalLike(nome));
         }
-        if(especialidade != null&&especialidade.isBlank()){
+        if(especialidade != null&&!especialidade.isBlank()){
             specs = specs.and(ProfissionalSpecification.especialidadeProfissionalLike(especialidade));
         }
-        if (email!=null&&email.isBlank()){
+        if (email!=null&&!email.isBlank()){
             specs = specs.and(ProfissionalSpecification.emailUserLike(email));
         }
 

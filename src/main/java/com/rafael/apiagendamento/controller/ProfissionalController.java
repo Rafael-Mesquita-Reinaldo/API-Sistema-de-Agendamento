@@ -5,6 +5,8 @@ import com.rafael.apiagendamento.dto.profissional.ProfissionalResponse;
 import com.rafael.apiagendamento.dto.profissional.UpdateProfissionalRequest;
 import com.rafael.apiagendamento.service.ProfissionalService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.web.PagedModel;
@@ -34,9 +36,9 @@ public class ProfissionalController implements GenericController{
         return ResponseEntity.ok(profissionalResponse);
     }
 
-    @PutMapping
-    public ResponseEntity<ProfissionalResponse> update(@RequestBody @Valid UpdateProfissionalRequest updateProfissionalRequest){
-        ProfissionalResponse profissionalResponse = profissionalService.update(updateProfissionalRequest);
+    @PatchMapping("/{id}")
+    public ResponseEntity<ProfissionalResponse> update(@RequestBody @Valid UpdateProfissionalRequest updateProfissionalRequest,@PathVariable UUID id){
+        ProfissionalResponse profissionalResponse = profissionalService.update(updateProfissionalRequest,id);
         return ResponseEntity.ok(profissionalResponse);
     }
 
@@ -50,8 +52,8 @@ public class ProfissionalController implements GenericController{
     public ResponseEntity<PagedModel<ProfissionalResponse>> searchSpecs(@RequestParam(value = "nome",required = false)String nome,
                                                                         @RequestParam(value = "especialidade",required = false)String especialidade,
                                                                         @RequestParam(value = "email",required = false)String email,
-                                                                        @RequestParam(value = "numero-pagina",defaultValue = "0")Integer numeroPagina,
-                                                                        @RequestParam(value = "tamanho-pagina",defaultValue = "5")Integer tamanhoPagina){
+                                                                        @RequestParam(value = "numero-pagina",defaultValue = "0")@Min(value = 0,message = "O número da página não pode ser negativo.") Integer numeroPagina,
+                                                                        @RequestParam(value = "tamanho-pagina",defaultValue = "5") @Min(value = 1,message = "O tamanho da página deve ser no mínimo 1.")@Max(value = 100,message = "O tamanho da página dever ser no máximo 100.")Integer tamanhoPagina){
         Page<ProfissionalResponse> resultadoPesquisa = profissionalService.searchSpecs(nome,especialidade,email,numeroPagina,tamanhoPagina);
         return ResponseEntity.ok(new PagedModel<>(resultadoPesquisa));
     }

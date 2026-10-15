@@ -4,9 +4,7 @@ import com.rafael.apiagendamento.dto.profissional.CreateProfissionalRequest;
 import com.rafael.apiagendamento.dto.profissional.ProfissionalResponse;
 import com.rafael.apiagendamento.dto.profissional.UpdateProfissionalRequest;
 import com.rafael.apiagendamento.model.Profissional;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 
 @Mapper(componentModel = "spring",uses = UserMapper.class)
 public interface ProfissionalMapper {
@@ -14,9 +12,11 @@ public interface ProfissionalMapper {
     @Mapping(source = "createUserRequest",target = "usuario")
     Profissional toEntityCreate(CreateProfissionalRequest createProfissionalRequest);
 
-    @Mapping(target = "id",ignore = true)
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "usuario",ignore = true)
-    void EntityUpdate(UpdateProfissionalRequest updateProfissionalRequest, @MappingTarget Profissional profissional);
+    @Mapping(target = "id",ignore = true)
+    void updateEntity(UpdateProfissionalRequest updateProfissionalRequest, @MappingTarget Profissional profissional);
 
     @Mapping(source = "usuario",target = "userResponse")
     ProfissionalResponse toResponse(Profissional profissional);

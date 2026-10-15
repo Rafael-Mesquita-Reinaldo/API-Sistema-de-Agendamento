@@ -9,7 +9,7 @@ public record CreateUserRequest(
         @NotBlank(message = "Campo email é obrigatório!")
         @Email(message = "Email inválido")
         String email,
-        @NotBlank(message = "Campo email é obrigatório!")
+        @NotBlank(message = "Campo senha é obrigatório!")
         String senha
 ) {
 }
