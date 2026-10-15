@@ -54,7 +54,7 @@ public class AgendamentoController implements GenericController {
                                                                        @RequestParam(name = "data",required = false) LocalDate data,
                                                                        @RequestParam(name = "hora_inicio",required = false)LocalTime horaInicio,
                                                                        @RequestParam(name = "hora_fim",required = false) LocalTime horaFim,
-                                                                       @RequestParam(name = "numero_pagina",defaultValue = "0")@Min(value = 1,message = "O número da página não pode ser negativo.") Integer numeroPagina,
+                                                                       @RequestParam(name = "numero_pagina",defaultValue = "0")@Min(value = 0,message = "O número da página não pode ser negativo.") Integer numeroPagina,
                                                                        @RequestParam(name = "tamanho_pagina",defaultValue = "5")@Min(value = 1,message = "O tamanho da página deve ser no mínimo 1.")@Max(value = 100,message = "O tamanho da página dever ser no máximo 100.") Integer tamanhoPagina){
         Page<AgendamentoResponse> resultadoPesquisa = service.searchSpecs(idClient,idProfissional,idServico,data,horaInicio,horaFim,numeroPagina,tamanhoPagina);
         return ResponseEntity.ok(new PagedModel<>(resultadoPesquisa));

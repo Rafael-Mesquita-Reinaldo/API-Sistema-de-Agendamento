@@ -15,6 +15,7 @@ public record CreateAgendamentoRequest(
         @NotNull(message = "É necessário do id do serviço")
         UUID idServico,
         @FutureOrPresent(message = "A data não pode ser no passado")
+        @NotNull(message = "É necessário da data")
         LocalDate data,
         @NotNull(message = "É necessário do horário para agendar")
         LocalTime horaInicio

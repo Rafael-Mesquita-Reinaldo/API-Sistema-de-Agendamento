@@ -2,7 +2,10 @@ package com.rafael.apiagendamento.handler;
 
 import com.rafael.apiagendamento.dto.ErroCampo;
 import com.rafael.apiagendamento.dto.ErroResposta;
+import com.rafael.apiagendamento.exceptions.ConflitoException;
 import com.rafael.apiagendamento.exceptions.DadosNaoEncontradoException;
+import com.rafael.apiagendamento.exceptions.HorarioComercialException;
+import com.rafael.apiagendamento.exceptions.StatusAgendamentoException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -35,5 +38,26 @@ public class GlobalExceptionHandler {
     public ErroResposta handleIllegalArgumentException(IllegalArgumentException e){
         return new ErroResposta(HttpStatus.BAD_REQUEST.value(), e.getMessage(),List.of());
     }
+
+    @ExceptionHandler(ConflitoException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErroResposta handleConflitoException(ConflitoException e){
+        return new ErroResposta(HttpStatus.CONFLICT.value(), e.getMessage(),List.of());
+    }
+
+    @ExceptionHandler(HorarioComercialException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErroResposta handleHorarioComecialException(HorarioComercialException e){
+        return new ErroResposta(HttpStatus.FORBIDDEN.value(), e.getMessage(),List.of());
+    }
+
+    @ExceptionHandler(StatusAgendamentoException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ErroResposta handleStatusAgendamentoException(StatusAgendamentoException e){
+        return new ErroResposta(HttpStatus.UNPROCESSABLE_ENTITY.value(), e.getMessage(),List.of());
+    }
+
+
+
 
 }

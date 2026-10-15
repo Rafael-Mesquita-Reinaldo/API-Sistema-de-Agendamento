@@ -2,9 +2,11 @@ package com.rafael.apiagendamento.validator;
 
 import com.rafael.apiagendamento.exceptions.HorarioComercialException;
 import com.rafael.apiagendamento.model.Agendamento;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalTime;
 
+@Component
 public class ValidadorHorarioComercial implements Validador{
 
     private final LocalTime horarioComercialInicio = LocalTime.of(8,0);
@@ -12,8 +14,8 @@ public class ValidadorHorarioComercial implements Validador{
 
     @Override
     public void validar(Agendamento agendamento) {
-        if (agendamento.getHoraInicio().isBefore(horarioComercialInicio) || agendamento.getHoraFim().isAfter(horarioComercialFim) ){
-            throw new HorarioComercialException("O agendamento está fora do horário Comecial.");
+        if (agendamento.getHoraInicio().isBefore(horarioComercialInicio) ||agendamento.getHoraInicio().isAfter(horarioComercialFim)|| agendamento.getHoraFim().isAfter(horarioComercialFim) ){
+            throw new HorarioComercialException("O agendamento está fora do horário comecial.");
         }
     }
 }

@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,6 +60,9 @@ public class AgendamentoService {
     @Transactional
     public AgendamentoResponse update(UpdateAgendamentoRequest request, UUID id){
         Agendamento agendamento = agendamentoRepository.findById(id).orElseThrow(() -> new DadosNaoEncontradoException(id));
+        if(agendamento.getStatus()!= Status.AGENDADO){
+            throw new StatusAgendamentoException("Apenas agendamentos com status AGENDADO pode ser atualizado");
+        }
         if (request.idProfissional()!=null){
             Profissional profissional = profissionalRepository.findById(request.idProfissional()).orElseThrow(() -> new DadosNaoEncontradoException(request.idProfissional()));
             agendamento.setProfissional(profissional);
@@ -66,11 +70,12 @@ public class AgendamentoService {
         }
 
         if (request.idClient()!=null){
-            Client client = clientRepository.findById(request.idClient()).orElseThrow(() -> new DadosNaoEncontradoException(id));
+            Client client = clientRepository.findById(request.idClient()).orElseThrow(() -> new DadosNaoEncontradoException(request.idClient()));
             agendamento.setCliente(client);
         }
         if (request.idServico()!=null){
-            Servico servico = servicoRepository.findById(request.idServico()).orElseThrow(()->new DadosNaoEncontradoException(id));
+            Servico servico = servicoRepository.findById(request.idServico()).orElseThrow(()->new DadosNaoEncontradoException(request.idServico()));
+            agendamento.setServico(servico);
         }
         agendamentoMapper.updateEntity(request,agendamento);
         atualizarHorarioFinal(agendamento);
@@ -93,7 +98,7 @@ public class AgendamentoService {
                 AgendamentoSpecification.horaInicioAgendamentoEqual(horaInicio),
                 AgendamentoSpecification.horaFimAgendamentoEqual(horaFim));
 
-        Pageable pageable = PageRequest.of(numeroPagina,tamanhoPagina);
+        Pageable pageable = PageRequest.of(numeroPagina,tamanhoPagina, Sort.by("data").ascending().and(Sort.by("horaInicio").ascending()));
         return agendamentoRepository.findAll(specs,pageable).map(agendamentoMapper::toResponse);
 
     }
@@ -108,6 +113,9 @@ public class AgendamentoService {
     @Transactional
     public void agendamentoCancelado(UUID id){
         Agendamento agendamento = agendamentoRepository.findById(id).orElseThrow(() -> new DadosNaoEncontradoException(id));
+        if(agendamento.getStatus()!= Status.AGENDADO){
+            throw new StatusAgendamentoException("Somente agendamentos AGENDADOS podem ser cancelados.");
+        }
         agendamento.setStatus(Status.CANCELADO);
     }
 }
