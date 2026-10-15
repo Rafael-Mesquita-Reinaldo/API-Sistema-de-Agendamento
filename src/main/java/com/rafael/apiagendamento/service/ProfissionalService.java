@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,9 +49,6 @@ public class ProfissionalService {
 
     @Transactional
     public ProfissionalResponse update(UpdateProfissionalRequest updateProfissionalRequest,UUID id){
-        if (id==null){
-            throw new NullPointerException("É necessário do id para atualizar.");
-        }
         Profissional profissional = profissionalRepository.findById(id).orElseThrow(()-> new DadosNaoEncontradoException(id));
         profissionalMapper.updateEntity(updateProfissionalRequest,profissional);
         return profissionalMapper.toResponse(profissional);
@@ -74,7 +72,7 @@ public class ProfissionalService {
             specs = specs.and(ProfissionalSpecification.emailUserLike(email));
         }
 
-        Pageable page = PageRequest.of(numeroPagina,tamanhoPagina);
+        Pageable page = PageRequest.of(numeroPagina,tamanhoPagina, Sort.by("nome").ascending());
         Page<Profissional> resultadoPesquisa= profissionalRepository.findAll(specs,page);
         return resultadoPesquisa.map(profissionalMapper::toResponse);
     }
