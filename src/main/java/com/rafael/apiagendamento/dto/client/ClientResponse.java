@@ -8,12 +8,9 @@ import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
 public record ClientResponse(
-        @NotNull
         UUID id,
-        @NotBlank
         String nome,
         String telefone,
-        @NotNull
         UserResponse userResponse
 ) {
 
