@@ -33,9 +33,4 @@ public class Client {
         this.telefone = telefone;
         this.usuario = usuario;
     }
-
-    public Client(String nome, String telefone) {
-        this.nome = nome;
-        this.telefone = telefone;
-    }
 }

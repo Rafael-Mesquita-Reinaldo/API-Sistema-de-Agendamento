@@ -5,14 +5,15 @@ import com.rafael.apiagendamento.dto.users.UpdateUserRequest;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import java.util.UUID;
 
 public record UpdateClientRequest(
-        @NotBlank(message = "Campo nome não pode está em branco!")
+        @Pattern(regexp = ".*\\S.*")
+        @Size(max = 255)
         String nome,
-        @NotBlank(message = "Campo nome não pode está em branco!")
-        @Pattern(regexp = "\\\\d{10,11}",message = "Número inválido.")
+        @Pattern(regexp = "\\d{10,11}",message = "Número inválido.")
         String telefone
 ) {
 }
