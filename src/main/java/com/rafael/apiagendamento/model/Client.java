@@ -21,11 +21,11 @@ public class Client {
     @Column(nullable = false)
     private String nome;
 
-    @Column(length = 20)
+    @Column(length = 20,nullable = false)
     private String telefone;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "usuario_id",unique = true,nullable = true)
+    @JoinColumn(name = "usuario_id",unique = true,nullable = false)
     private User usuario;
 
     public Client(String nome, String telefone, User usuario) {
