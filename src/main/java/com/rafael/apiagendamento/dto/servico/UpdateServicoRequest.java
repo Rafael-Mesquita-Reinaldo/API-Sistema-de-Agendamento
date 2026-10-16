@@ -7,6 +7,7 @@ import java.util.UUID;
 
 public record UpdateServicoRequest(
         @Size(max = 255)
+        @Pattern(regexp = ".*\\S.*")
         String descricao,
         @Positive(message = "Não é aceito número negativo")
         Integer duracaoMinutos,
