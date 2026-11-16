@@ -11,6 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,26 +30,28 @@ public class AgendamentoController implements GenericController {
 
     private final AgendamentoService service;
 
-
+    @PreAuthorize("permitAll()")
     @PostMapping
     public ResponseEntity<AgendamentoResponse> create(@RequestBody @Valid CreateAgendamentoRequest request){
         AgendamentoResponse response = service.create(request);
         URI location = gerarHeadLocation(response.id());
         return ResponseEntity.created(location).body(response);
     }
-
+    @PreAuthorize("isAuthenticated()")
     @PatchMapping("{id}")
-    public ResponseEntity<AgendamentoResponse>update(@RequestBody @Valid UpdateAgendamentoRequest request, @PathVariable UUID id){
-        AgendamentoResponse response = service.update(request, id);
+    public ResponseEntity<AgendamentoResponse>update(@RequestBody @Valid UpdateAgendamentoRequest request, @PathVariable UUID id,@AuthenticationPrincipal UserDetails usuarioLogado){
+        AgendamentoResponse response = service.update(request, id,usuarioLogado);
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
-    public ResponseEntity<AgendamentoResponse> searchById(@PathVariable UUID id){
-        AgendamentoResponse response = service.searchById(id);
+    public ResponseEntity<AgendamentoResponse> searchById(@PathVariable UUID id,@AuthenticationPrincipal UserDetails usuarioLogado){
+        AgendamentoResponse response = service.searchById(id,usuarioLogado);
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','PROFISSIONAIS')")
     @GetMapping
     public ResponseEntity<PagedModel<AgendamentoResponse>> searchSpecs(@RequestParam(name = "id_client",required = false)UUID idClient,
                                                                        @RequestParam(name = "id_profissional",required = false)UUID idProfissional,
@@ -60,13 +65,15 @@ public class AgendamentoController implements GenericController {
         return ResponseEntity.ok(new PagedModel<>(resultadoPesquisa));
     }
     @PatchMapping("/{id}/concluir")
+    @PreAuthorize("hasAnyRole('ADMIN','PROFISSIONAIS')")
     public ResponseEntity<Void> agendamentoConcluido(@PathVariable UUID id){
         service.agendamentoConcluido(id);
         return ResponseEntity.noContent().build();
     }
     @PatchMapping("/{id}/cancelar")
-    public ResponseEntity<Void> agendamentoCancelado(@PathVariable UUID id){
-        service.agendamentoCancelado(id);
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> agendamentoCancelado(@PathVariable UUID id,@AuthenticationPrincipal UserDetails usuarioLogado){
+        service.agendamentoCancelado(id,usuarioLogado);
         return ResponseEntity.noContent().build();
     }
 

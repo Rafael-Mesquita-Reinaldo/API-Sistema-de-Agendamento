@@ -1,6 +1,7 @@
 package com.rafael.apiagendamento.repository;
 
 import com.rafael.apiagendamento.model.Agendamento;
+import com.rafael.apiagendamento.model.Client;
 import com.rafael.apiagendamento.model.Profissional;
 import com.rafael.apiagendamento.model.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,5 +16,7 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, UUID>,
     List<Agendamento> findByProfissionalAndDataAndStatus(Profissional profissional, LocalDate data, Status status);
 
     List<Agendamento> findByProfissionalAndDataAndStatusAndIdNot(Profissional profissional, LocalDate data, Status status, UUID id);
+
+    List<Agendamento> findByCliente(Client cliente);
 
 }

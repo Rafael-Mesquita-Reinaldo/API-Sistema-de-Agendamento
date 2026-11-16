@@ -3,6 +3,7 @@ package com.rafael.apiagendamento.service;
 import com.rafael.apiagendamento.dto.agendamento.AgendamentoResponse;
 import com.rafael.apiagendamento.dto.agendamento.CreateAgendamentoRequest;
 import com.rafael.apiagendamento.dto.agendamento.UpdateAgendamentoRequest;
+import com.rafael.apiagendamento.exceptions.ConflitoException;
 import com.rafael.apiagendamento.exceptions.DadosNaoEncontradoException;
 import com.rafael.apiagendamento.exceptions.StatusAgendamentoException;
 import com.rafael.apiagendamento.mappers.AgendamentoMapper;
@@ -19,6 +20,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,8 +61,9 @@ public class AgendamentoService {
     }
 
     @Transactional
-    public AgendamentoResponse update(UpdateAgendamentoRequest request, UUID id){
+    public AgendamentoResponse update(UpdateAgendamentoRequest request, UUID id,UserDetails usuarioLogado){
         Agendamento agendamento = agendamentoRepository.findById(id).orElseThrow(() -> new DadosNaoEncontradoException(id));
+        verificarDono(agendamento,usuarioLogado);
         if(agendamento.getStatus()!= Status.AGENDADO){
             throw new StatusAgendamentoException("Apenas agendamentos com status AGENDADO pode ser atualizado");
         }
@@ -85,12 +89,14 @@ public class AgendamentoService {
         return agendamentoMapper.toResponse(agendamento);
     }
 
-    public AgendamentoResponse searchById(UUID id){
+    public AgendamentoResponse searchById(UUID id,UserDetails usuarioLogado){
         Agendamento agendamento = agendamentoRepository.findById(id).orElseThrow(() -> new DadosNaoEncontradoException(id));
+        verificarDono(agendamento,usuarioLogado);
         return agendamentoMapper.toResponse(agendamento);
     }
 
-    public Page<AgendamentoResponse> searchSpecs(UUID idClient, UUID idProfissional, UUID idServico, LocalDate data, LocalTime horaInicio,LocalTime horaFim,Integer numeroPagina,Integer tamanhoPagina){
+    public Page<AgendamentoResponse> searchSpecs(UUID idClient, UUID idProfissional, UUID idServico, LocalDate data, LocalTime horaInicio, LocalTime horaFim, Integer numeroPagina, Integer tamanhoPagina){
+
         Specification<Agendamento> specs = Specification.allOf(AgendamentoSpecification.idClientAgendamentoEqual(idClient),
                 AgendamentoSpecification.idProfissionalAgendamentoEqual(idProfissional),
                 AgendamentoSpecification.idServicoAgendamentoEqual(idServico),
@@ -111,11 +117,20 @@ public class AgendamentoService {
         agendamento.setStatus(Status.CONCLUIDO);
     }
     @Transactional
-    public void agendamentoCancelado(UUID id){
+    public void agendamentoCancelado(UUID id, UserDetails usuarioLogado){
         Agendamento agendamento = agendamentoRepository.findById(id).orElseThrow(() -> new DadosNaoEncontradoException(id));
+        verificarDono(agendamento,usuarioLogado);
         if(agendamento.getStatus()!= Status.AGENDADO){
             throw new StatusAgendamentoException("Somente agendamentos AGENDADOS podem ser cancelados.");
         }
         agendamento.setStatus(Status.CANCELADO);
+    }
+
+    private void verificarDono(Agendamento agendamento,UserDetails usuarioLogado){
+        boolean isCliente = usuarioLogado.getAuthorities().stream().anyMatch(authority-> authority.getAuthority().equals("ROLE_CLIENTE"));
+        if (isCliente &&  !agendamento.getCliente().getUsuario().getEmail().equalsIgnoreCase(usuarioLogado.getUsername())){
+            throw new ConflitoException("Esse agendamento não pertence ao seu usuário.");
+        }
+
     }
 }
