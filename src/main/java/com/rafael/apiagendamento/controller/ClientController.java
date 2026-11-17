@@ -11,6 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +26,7 @@ import java.util.UUID;
 public class ClientController implements GenericController {
     private final ClientService clientService;
 
+    @PreAuthorize("permitAll()")
     @PostMapping
     public ResponseEntity<ClientResponse>create(@RequestBody @Valid CreateClientRequest createClientRequest){
         ClientResponse clientResponse = clientService.create(createClientRequest);
@@ -30,23 +34,28 @@ public class ClientController implements GenericController {
         return ResponseEntity.created(location).body(clientResponse);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
-    public ResponseEntity<ClientResponse>searchById(@PathVariable UUID id){
-        ClientResponse clientResponse = clientService.searchById(id);
-        return ResponseEntity.ok(clientResponse);
-    }
-    @PatchMapping("/{id}")
-    public ResponseEntity<ClientResponse>update(@RequestBody @Valid UpdateClientRequest updateClientRequest, @PathVariable UUID id){
-        ClientResponse clientResponse = clientService.update(updateClientRequest,id);
+    public ResponseEntity<ClientResponse>searchById(@PathVariable UUID id,@AuthenticationPrincipal UserDetails usuarioLogado){
+        ClientResponse clientResponse = clientService.searchById(id,usuarioLogado);
         return ResponseEntity.ok(clientResponse);
     }
 
+    @PreAuthorize("isAuthenticated()")
+    @PatchMapping("/{id}")
+    public ResponseEntity<ClientResponse>update(@RequestBody @Valid UpdateClientRequest updateClientRequest, @PathVariable UUID id, @AuthenticationPrincipal UserDetails usuarioLogado){
+        ClientResponse clientResponse = clientService.update(updateClientRequest,id,usuarioLogado);
+        return ResponseEntity.ok(clientResponse);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id){
         clientService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAnyRole('PROFISSIONAIS','ADMIN')")
     @GetMapping
     public ResponseEntity<PagedModel<ClientResponse>> searchSpecs(@RequestParam(value = "nome",required = false) String nome,
                                                                   @RequestParam(value = "telefone",required = false)String telefone,

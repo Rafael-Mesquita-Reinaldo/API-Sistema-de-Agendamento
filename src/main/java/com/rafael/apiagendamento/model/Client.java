@@ -26,9 +26,9 @@ public class Client {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "usuario_id",unique = true,nullable = false)
-    private User usuario;
+    private UserModel usuario;
 
-    public Client(String nome, String telefone, User usuario) {
+    public Client(String nome, String telefone, UserModel usuario) {
         this.nome = nome;
         this.telefone = telefone;
         this.usuario = usuario;

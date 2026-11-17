@@ -6,8 +6,10 @@ import com.rafael.apiagendamento.dto.client.UpdateClientRequest;
 import com.rafael.apiagendamento.exceptions.ConflitoException;
 import com.rafael.apiagendamento.exceptions.DadosNaoEncontradoException;
 import com.rafael.apiagendamento.mappers.ClientMapper;
+import com.rafael.apiagendamento.model.Agendamento;
 import com.rafael.apiagendamento.model.Client;
 import com.rafael.apiagendamento.model.Role;
+import com.rafael.apiagendamento.model.UserModel;
 import com.rafael.apiagendamento.repository.ClientRepository;
 import com.rafael.apiagendamento.repository.UserRepository;
 import com.rafael.apiagendamento.specification.ClientSpecification;
@@ -17,6 +19,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +33,7 @@ public class ClientService {
     private final ClientRepository clientRepository;
     private final ClientMapper clientMapper;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public ClientResponse create(CreateClientRequest createClientRequest){
@@ -37,18 +42,21 @@ public class ClientService {
             throw new ConflitoException("Email existente");
         }
         client.getUsuario().setRole(Role.CLIENTE);
+        client.getUsuario().setSenha(passwordEncoder.encode(client.getUsuario().getSenha()));
         client.setUsuario(userRepository.save(client.getUsuario()));
         return clientMapper.toResponse(clientRepository.save(client));
     }
 
-    public ClientResponse searchById(UUID id){
+    public ClientResponse searchById(UUID id, UserDetails usuarioLogado){
         Client client = clientRepository.findById(id).orElseThrow(()-> new DadosNaoEncontradoException(id));
+        verificarDono(client,usuarioLogado);
         return clientMapper.toResponse(client);
     }
 
     @Transactional
-    public ClientResponse update(UpdateClientRequest updateClientRequest,UUID id){
+    public ClientResponse update(UpdateClientRequest updateClientRequest,UUID id,UserDetails usuarioLogado){
         Client client = clientRepository.findById(id).orElseThrow(()-> new DadosNaoEncontradoException(id));
+        verificarDono(client,usuarioLogado);
         clientMapper.entityUpdate(updateClientRequest,client);
         return clientMapper.toResponse(client);
 
@@ -78,6 +86,13 @@ public class ClientService {
         Page<Client> resultado = clientRepository.findAll(specs,page);
 
         return resultado.map(clientMapper::toResponse);
+
+    }
+    private void verificarDono(Client client, UserDetails usuarioLogado){
+        boolean isCliente = usuarioLogado.getAuthorities().stream().anyMatch(authority-> authority.getAuthority().equals("ROLE_CLIENTE"));
+        if (isCliente &&  !client.getUsuario().getEmail().equalsIgnoreCase(usuarioLogado.getUsername())){
+            throw new ConflitoException("Esses dados não pertence ao seu usuário.");
+        }
 
     }
     
