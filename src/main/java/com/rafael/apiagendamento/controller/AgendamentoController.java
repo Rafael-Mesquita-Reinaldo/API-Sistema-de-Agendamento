@@ -51,7 +51,7 @@ public class AgendamentoController implements GenericController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','PROFISSIONAIS')")
+    @PreAuthorize("hasAnyRole('ADMIN','PROFISSIONAl')")
     @GetMapping
     public ResponseEntity<PagedModel<AgendamentoResponse>> searchSpecs(@RequestParam(name = "id_client",required = false)UUID idClient,
                                                                        @RequestParam(name = "id_profissional",required = false)UUID idProfissional,

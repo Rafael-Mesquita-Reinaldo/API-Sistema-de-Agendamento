@@ -55,7 +55,7 @@ public class ClientController implements GenericController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasAnyRole('PROFISSIONAIS','ADMIN')")
+    @PreAuthorize("hasAnyRole('PROFISSIONAl','ADMIN')")
     @GetMapping
     public ResponseEntity<PagedModel<ClientResponse>> searchSpecs(@RequestParam(value = "nome",required = false) String nome,
                                                                   @RequestParam(value = "telefone",required = false)String telefone,
